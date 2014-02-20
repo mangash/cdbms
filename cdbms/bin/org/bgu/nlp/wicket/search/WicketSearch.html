@@ -1,0 +1,24 @@
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+	<h1>Search Form</h1>
+	<form wicket:id="searchform">
+	<p>
+		{ "query" :<br>
+		<textarea rows=20 cols=80 wicket:id="query" placeholder="enter ElasticSearch Query">
+		</textarea><br>
+		}
+		</p>
+		<p>
+		Enter max number of hits: 
+		<input wicket:id="hitnum" value="10" type="text"/>
+		</p>
+		<input type="submit" wicket:id="searchform_submit" value="חפש">
+	</form>
+	<div wicket:id="resultsPanel">
+		<span wicket:id="resultsLbl"></span>
+	</div>
+</body>
+</html>

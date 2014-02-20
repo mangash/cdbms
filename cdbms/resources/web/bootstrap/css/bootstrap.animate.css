@@ -1,0 +1,21 @@
+/* you can use natural CSS transitions just
+   as you would without using ngAnimate */
+.sent-res {
+  -webkit-transition: 0.15s linear all;
+  -moz-transition: 0.15s linear all;
+  -ms-transition: 0.15s linear all;
+  -o-transition: 0.15s linear all;
+  transition: 0.15s linear all;
+  opacity:1;
+}
+
+.sent-res.ng-hide {
+  opacity:0;
+}
+
+.sent-res.ng-hide-add, .sent-res.ng-hide-remove {
+  /* this needs to be here to make it visible during the animation
+     since the .ng-hide class is already on the element rendering
+     it as hidden. */
+  display:block!important;
+}

@@ -1,0 +1,40 @@
+How to add a new sentence property to the sentence schema:
+1.	add the new property to the schema of the elastic search master node.
+	usually, the schema is at:
+	<path to node>/config/mappings/_default/sentence.json
+2.	add default values to the field to the configuration file located at:
+	<sentenceImprtation root dir>/resources/configuration/config.properties
+3.	in org.bgu.nlp.HebFNProperties.java: 
+	-	add a global variable to that will hold the	new field's	value.
+	-	add initialization of the new field to the HebFNProperties.init()
+		function.
+4.	in org.bgu.nlp.internal.format.SentenceProperties:
+	-	add initialization of the new property with the global variable declared in
+		section 3.
+5.	in org.bgu.nlp.internal.format.YoavSentence.java:
+	-	add a new private variable to the state of the class.
+	-	in the constructor, add initialization of the private variable according to the
+		appropriate property.
+	-	in YoavSentence.toJson(), add the new property to the JSON builder Object.
+	-	add a getter and a setter functions for the new private variable.
+6.	in org.bgu.nlp.elasticsearch.DocumentAdder.java:
+	-	In searchHitToSentence() add code for extracting the new sentence property
+		from the elasticsearch's hit Object.
+	-	In searchHitToSentence() add code for setting the returned sentence with the
+		new property.
+
+How to add a new word property to the sentence schema:
+1.	add the new property to the schema of the elastic search master node.
+	usually, the schema is at:
+	<path to node>/config/mappings/_default/sentence.json
+	the new property must be added inside the 'words' nested object.
+2.	in org.bgu.nlp.internal.format.YoavWord.java:
+	-	add a new private variable to the state of the class.
+	-	in the constructor, add initialization of the private variable according to the
+		appropriate property.
+	-	in YoavWord.getProperties(), add the new property to the returned Properties
+		Object.
+	-	add a getter and a setter functions for the new private variable.
+3.	in org.bgu.nlp.elasticsearch.DocumentAdder.java:
+	-	In jsonToWord() add code for extracting the new word property and setting
+		the returned word with the new property.

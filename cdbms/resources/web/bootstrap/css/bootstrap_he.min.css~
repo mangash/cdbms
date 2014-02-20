@@ -1,0 +1,3 @@
+.form-control, .h1{
+text-align:right
+}

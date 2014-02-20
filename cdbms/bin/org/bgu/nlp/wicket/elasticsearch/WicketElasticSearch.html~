@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap_custom.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.animate.css">
+    <title>HebFN: ElasticSearch Query</title>
+</head>
+<body>
+    <div class="container">
+        <div class="col-sm-6 col-sm-offset-6">
+            <!-- PAGE TITLE -->
+            <div class="page-header">
+                <h1>
+                    <span class="glyphicon glyphicon-question-sign"></span><span>בצע שאילתת ElasticSearch</span>
+                </h1>
+            </div>
+            <div class="container" data-ng-app="esApp">
+                <form class="form-horizontal" role="form" data-ng-controller="esController">
+                <div class="form-group">
+                    <div class="col-md-11">
+                        <textarea style="text-align: left; direction: ltr;" class="form-control" rows="16" data-ng-model="inputData.query" placeholder="הכנס שאילתה"></textarea>
+                    </div>
+                    <label class="col-md-1">
+                        <strong>שאילתה: </strong>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control" data-ng-model="inputData.hitsnum" placeholder="הזן מספר תוצאות" />
+                    </div>
+                    <label class="col-md-1">
+                        <strong>מספר תוצאות: </strong>
+                    </label>
+                </div>
+                <div class="form-group">
+                <span>
+                    <button type="submit" class="btn btn-primary" data-ng-disabled="loading" data-ng-click="processForm()">
+                        <strong>שלח </strong>
+                    </button>
+                    </span>
+                    <span ng-show="loading">
+                    <img  src="web/images/loading_indicator.gif" id="loading-indicator"/>
+                    </span>
+                </div>
+                <!--
+                <div class="form-group">
+                <button class="btn btn-primary btn-lg" href="web/pages/help_es_query.html" data-toggle="modal" data-target="#myModal">
+  עזרה
+				</button>
+                </div>
+                -->
+                <div ng-show="showResult" class="sent-res">
+                    <h2>
+                        תוצאה:</h2>
+                    <button id="copy" class="btn btn-primary btn-xs" data-clipboard-text="{{message}}">העתק</button>
+                    <pre style="text-align: left; direction: ltr;" data-clipboard-text="{{message}}" id="result" ng-bind-html="htmlMessage"></pre>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!--- Modal Section --->
+    <div id="myModal" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"> × </button>
+        <h3 id="myModalLabel">Modal header</h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    </div>
+	</div>
+	<script src="web/scripts/jquery.min.js" type="text/javascript"></script>
+    <script src="web/scripts/angular.min.js" type="text/javascript"></script>
+    <script src="web/scripts/angular-animate.min.js" type="text/javascript"></script>
+    <script src="web/bootstrap/zeroclipboard-1.2.3/ZeroClipboard.js" type="text/javascript"></script>
+    <script src="web/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script>
+        function esController($scope, $http, $sce) {
+            $scope.loading = false;
+            $scope.showResult = false;
+            var exampleQuery = {"query":{"bool":{"must":[{"match_all":{}}],"must_not":[],"should":[]}},"from":0,"size":10,"sort":[],"facets":{}};
+            $scope.inputData = { query: JSON.stringify(exampleQuery, undefined, 2), 
+                hitsnum: '20',
+            };
+
+            // process the form
+            $scope.processForm = function () {
+                $scope.formData = $.param({
+                    'query': $scope.inputData.query,
+                    'hitsnum': $scope.inputData.hitsnum,
+                    'diversify': 'false',
+                    'pagenum': '1'
+                });
+                $scope.loading = true;
+                $scope.showResult = false;
+                $http({
+                    method: 'POST',
+                    url: '/elasticsearch/rest',
+                    data: $scope.formData,  // pass in data as strings
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}  // set the headers so angular passing info as form data (not request payload)
+                })
+        .success(function (data) {
+            $scope.message = data;
+            $scope.htmlMessage=$sce.trustAsHtml(syntaxHighlight($scope.message));
+            console.log($scope.message);
+            $scope.showResult = true;
+            $scope.loading = false;
+        })
+        .error(function (data, status) {
+                $scope.message = 'Request failed';
+            });
+            };
+        }
+
+        var ExampleCtrl = function ($scope, $sce) {
+            $scope.trustedFieldName = $sce.trustAsHtml(syntaxHighlight($scope.fieldName));
+            $scope.trustedFieldValue = $sce.trustAsHtml(syntaxHighlight($scope.fieldValue));
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            json = json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+            return json;
+        }
+    </script>
+        <script>
+            var esApp = angular.module('esApp', ['ngAnimate']);
+        esApp.controller = ('esController', esController);
+    </script>
+    <script>
+ZeroClipboard.setDefaults({moviePath:'web/bootstrap/zeroclipboard-1.2.3/ZeroClipboard.swf'});
+var clip = new ZeroClipboard();
+clip.glue(document.getElementById('copy'));
+</script>
+</body>
+</html>

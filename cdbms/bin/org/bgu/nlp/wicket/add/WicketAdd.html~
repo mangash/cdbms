@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap_custom.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.animate.css">
+    <title>HebFN: Index a New Sentence</title>
+</head>
+<body>
+    <div class="container">
+        <div class="col-sm-6 col-sm-offset-6">
+            <!-- PAGE TITLE -->
+            <div class="page-header">
+                <h1>
+                    <span class="glyphicon glyphicon-align-justify"></span><span> הוסף משפט חדש</span></h1>
+            </div>
+            <div class="container" data-ng-app="addApp">
+                <form class="form-horizontal" role="form" data-ng-controller="addController">
+                <div class="form-group">
+                    <div class="col-md-11">
+                        <textarea class="form-control" rows="3" data-ng-model="inputData.text" placeholder="הכנס משפט"></textarea>
+                    </div>
+                    <label class="col-md-1">
+                        <strong>טקסט: </strong>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-11">
+                        <input type="text" class="form-control" data-ng-model="inputData.genre" placeholder="הכנס ז'אנר" />
+                    </div>
+                    <label class="col-md-1">
+                        <strong>ז'אנר: </strong>
+                    </label>
+                </div>
+                                <div class="form-group">
+ 
+    <label class="col-md-11">
+     <input style="text-align: right;" type="checkbox" data-ng-model="inputData.preview">
+          תצוגה מקדימה בלבד
+    </label>
+                    <div class="col-md-1">&nbsp</div>
+    
+  </div>
+                <div class="form-group">
+                <span>
+                    <button type="submit" class="btn btn-primary" data-ng-disabled="loading" data-ng-click="processForm()">
+                        <strong>הוסף משפט </strong>
+                    </button>
+                    </span>
+                    <span ng-show="loading">
+                    <img  src="web/images/loading_indicator.gif" id="loading-indicator"/>
+                    </span>
+                </div>
+                <div ng-show="showResult" class="sent-res">
+                    <h2>
+                        תוצאה:</h2>
+                    <button id="copy" class="btn btn-primary btn-xs" data-clipboard-text="{{message}}">העתק</button>
+                    <pre style="text-align: left; direction: ltr;" data-clipboard-text="{{message}}" id="result" ng-bind-html="htmlMessage"></pre>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<script src="web/scripts/jquery.min.js" type="text/javascript"></script>
+    <script src="web/scripts/angular.min.js" type="text/javascript"></script>
+     <script src="web/scripts/angular-animate.min.js" type="text/javascript"></script>
+    <script src="web/bootstrap/zeroclipboard-1.2.3/ZeroClipboard.js" type="text/javascript"></script>
+    <script src="web/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script>
+            var addApp = angular.module('addApp', ['ngAnimate']);
+        addApp.controller = ('addController', addController);
+    </script>
+    <script>
+        function addController($scope, $http, $sce) {
+            $scope.loading = false;
+            $scope.showResult = false;
+            $scope.inputData = { text: 'הצלחתה של ההצגה תלויה כולה בקסמו של המספר או הסיפור',
+                genre: 'general',
+                preview: false
+            };
+
+            // process the form
+            $scope.processForm = function () {
+                $scope.formData = $.param({
+                    'text': $scope.inputData.text,
+                    'genre': $scope.inputData.genre,
+                    'preview': $scope.inputData.preview
+                });
+                $scope.loading = true;
+                $scope.showResult = false;
+                $http({
+                    method: 'POST',
+                    url: 'rest',
+                    data: $scope.formData,  // pass in data as strings
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}  // set the headers so angular passing info as form data (not request payload)
+                })
+        .success(function (data) {
+            $scope.message = data;
+            $scope.htmlMessage=$sce.trustAsHtml(syntaxHighlight($scope.message));
+            console.log($scope.message);
+            $scope.showResult = true;
+            $scope.loading = false;
+        })
+        .error(function (data, status) {
+                $scope.message = 'Request failed';
+            });
+            };
+        }
+
+        var ExampleCtrl = function ($scope, $sce) {
+            $scope.trustedFieldName = $sce.trustAsHtml(syntaxHighlight($scope.fieldName));
+            $scope.trustedFieldValue = $sce.trustAsHtml(syntaxHighlight($scope.fieldValue));
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json != 'string') {
+                json = JSON.stringify(json, undefined, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            json = json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+            return json;
+        }
+    </script>
+    <script>
+ZeroClipboard.setDefaults({moviePath:'../web/bootstrap/zeroclipboard-1.2.3/ZeroClipboard.swf'});
+var clip = new ZeroClipboard();
+clip.glue(document.getElementById('copy'));
+</script>
+</body>
+</html>

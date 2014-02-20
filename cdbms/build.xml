@@ -1,0 +1,56 @@
+<project name="sentenceImportion" basedir="." default="deploy">	
+
+	<property name="src.dir"     value="src"/>
+    <property name="build.dir"   value="build"/>
+
+    <path id="classpath">
+        <fileset dir="lib" includes="**/*.jar"/>
+    </path>
+	
+	<target name="remove">
+		<delete file="CDBMS.jar"/>
+	</target>
+		
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${build.dir}"/>
+		<copy todir="${build.dir}" includeEmptyDirs="false">
+			<fileset dir="."  excludes="**/*.html **/*.java **/*.class resources/* resources/**" />
+		</copy>       		
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath"/>	
+    	<copy todir="${build.dir}" includeEmptyDirs="false">
+			<fileset dir="src"  excludes="**/*.java **/*.class" />
+		</copy>
+    </target>
+
+    <target name="jar">
+        <jar destfile="CDBMS.jar" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="org.bgu.nlp.Main"/>
+				<attribute name="Class-Path" value="${src.dir}
+					lib/jetty-all-9.0.5.v20130815.jar
+					lib/javax.servlet-3.0.0.v201112011016.jar
+					lib/wicket-core-6.10.0.jar
+					lib/wicket-request-6.10.0.jar
+					lib/wicket-util-6.10.0.jar
+					lib/wicket-extensions-6.10.0.jar
+					lib/lucene-core-4.6.1.jar
+					lib/httpclient-4.2.3.jar
+					lib/httpcore-4.2.2.jar
+					lib/elasticsearch-1.0.0.jar
+					lib/commons-logging-1.1.3.jar
+					lib/commons-logging-api-1.1.3.jar
+					lib/slf4j-api-1.7.5.jar
+					lib/slf4j-simple-1.7.5.jar
+					lib/jackson-core-asl-1.7.4.jar
+					lib/jackson-mapper-asl-1.7.4.jar"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="deploy" depends="remove,compile,jar,clean"/>
+
+</project>
