@@ -20,7 +20,7 @@
 		<copy todir="${build.dir}" includeEmptyDirs="false">
 			<fileset dir="."  excludes="**/*.html **/*.java **/*.class resources/* resources/**" />
 		</copy>       		
-		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath"/>	
+		<javac encoding="UTF-8" srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath"/>	
     	<copy todir="${build.dir}" includeEmptyDirs="false">
 			<fileset dir="src"  excludes="**/*.java **/*.class" />
 		</copy>

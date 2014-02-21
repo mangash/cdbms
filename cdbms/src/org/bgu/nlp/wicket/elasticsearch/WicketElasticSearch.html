@@ -8,6 +8,10 @@
 </head>
 <body>
     <div class="container">
+    	<div class="col-sm-2 col-sm-offset-11">
+    		<h5><span class="glyphicon glyphicon-home"></span>
+    			<span><a href="/">לעמוד הבית</a> </span></h5>
+    	</div>
         <div class="col-sm-6 col-sm-offset-6">
             <!-- PAGE TITLE -->
             <div class="page-header">
@@ -81,7 +85,7 @@
         function esController($scope, $http, $sce) {
             $scope.loading = false;
             $scope.showResult = false;
-            var exampleQuery = {"query":{"bool":{"must":[{"match_all":{}}],"must_not":[],"should":[]}},"from":0,"size":10,"sort":[],"facets":{}};
+            var exampleQuery = {"query":{"bool":{"must":[{"match_all":{}}],"must_not":[]}}};
             $scope.inputData = { query: JSON.stringify(exampleQuery, undefined, 2), 
                 hitsnum: '20',
             };

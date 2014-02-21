@@ -18,7 +18,7 @@ public class WicketDemo extends WebPage {
 	
 	public WicketDemo()
 	{
-		Label label=new Label("message","hello world!");
-		add(label);
+		//Label label=new Label("message","hello world!");
+		//add(label);
 	}
 }

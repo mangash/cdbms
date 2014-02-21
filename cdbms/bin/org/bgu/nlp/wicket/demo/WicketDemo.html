@@ -1,5 +1,85 @@
-<html>
-<body>  
-<label wicket:id="message">bla</label>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap_custom.css">
+    <link rel="stylesheet" href="web/bootstrap/css/bootstrap.animate.css">
+    
+    <style type="text/css">
+    a:hover, a:visited, a:link, a:active
+	{
+    	text-decoration: none;
+	}
+		
+	#topdiv
+	{
+	 	height:10%; 
+    	width:100%;
+    }
+	
+	#bottomDiv
+	{
+		background-image:url('web/images/bg_home.jpg');
+		background-repeat:no-repeat;
+		background-position:right top;
+		background-size: 100%;
+		width:100%;
+	}
+	.headline
+	{
+		background-color: #A3BACC;
+		
+	}
+    </style>
+    <title>CDBMS Home</title>
+</head>
+<body>
+	<div class="container" id='topdiv'>
+    	<div>
+            <!-- PAGE TITLE -->
+            <div class="page-header">
+            	<div>
+                <h1>
+                    <center><span> המערכת לניהול קורפוסים - עמוד הבית </span></center>
+                </h1>
+                </div>
+            </div>
+            <div class="container">
+            	<ul>
+            		<li>
+            			<h2><a href="add/">הוסף משפט חדש למערכת</a></h2><br/>
+            		</li>
+            		<li>
+            			<h2><a href="elasticsearch/">בצע שאילתת ElasticSearch</a></h2>
+            		</li>
+            	</ul>
+            	<div class="page-header">
+            	</div>
+            	<div class="col-sm-2 col-sm-offset-1">
+            		<h4><a href="http://www.cs.bgu.ac.il/~itayman/cdbms/">למידע נוסף על המערכת</a></h4>
+            	</div>
+            </div>
+		</div>
+
+    </div>
+    		<div id='bottomDiv'>
+        </div>
+
+    <script src="web/scripts/jquery.min.js" type="text/javascript"></script>
+    <script src="web/scripts/angular.min.js" type="text/javascript"></script>
+    <script src="web/scripts/angular-animate.min.js" type="text/javascript"></script>
+    <script src="web/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+		$(window).resize(function(){
+		var topDivHeight = $("#topdiv").height(),
+		totalHeight = $(document).height();
+		$('#bottomDiv').height(totalHeight  - topDivHeight );
+		});
+		var topDivHeight = $("#topdiv").height(),
+		totalHeight = $(document).height();
+
+    	$('#bottomDiv').height(totalHeight  - topDivHeight );
+    
+    </script>
 </body>
 </html>

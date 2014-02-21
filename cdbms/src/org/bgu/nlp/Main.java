@@ -103,7 +103,7 @@ public class Main {
         servletholder_demo.setInitParameter("applicationClassName",  
                 org.bgu.nlp.wicket.webapp.WebAppDemo.class.getName());  
         servletholder_demo.setInitParameter(  
-                WicketFilter.FILTER_MAPPING_PARAM, "/demo/*"); 
+                WicketFilter.FILTER_MAPPING_PARAM, "/*"); 
         servletholder_demo.setInitOrder(1); 
         
         //	12.2.	Set servletholder_add
@@ -143,7 +143,7 @@ public class Main {
         
         //	13.	Set webapp
         //webapp.setContextPath("/*");			// URI path
-        webapp.addServlet(servletholder_demo, "/demo/*");
+        webapp.addServlet(servletholder_demo, "/*");
         webapp.addServlet(servletholder_add, "/add/*");
         webapp.addServlet(servletholder_search, "/search/*");
         webapp.addServlet(servletholder_delete, "/delete/*");
