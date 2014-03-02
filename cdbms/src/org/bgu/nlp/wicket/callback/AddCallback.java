@@ -34,15 +34,15 @@ public class AddCallback extends WriteCallback{
 		Writer writer = new OutputStreamWriter( outputStream, Charset.forName("UTF-8"));
 
 		//	3.	In case of a GET or a POST request, the request will be processed. 
-		//		Otherwise, the the callback will ignore the request altogether,
-		//		and state that the request should be a GET or a POST request.
 		if (httpServletRequest.getMethod().equalsIgnoreCase("GET") ||
 				httpServletRequest.getMethod().equalsIgnoreCase("POST"))
 		{
 			Map<String,String[]> params=httpServletRequest.getParameterMap();
+			//	Initial sentence properties with default values
 			SentenceProperties sentenceProperties = new SentenceProperties();
 			if (!params.isEmpty())
 			{
+				// Update sentence properties according to parameters
 				for (String property : params.keySet())
 				{
 					sentenceProperties.setProperty(property, params.get(property)[0]);
@@ -50,11 +50,16 @@ public class AddCallback extends WriteCallback{
 			}
 			String doc;
 			try {
+				// Based on the  POSTed sentence properties, create a new analyzed sentence
 				YoavSentence resultSentence =new YoavSentence(sentenceProperties);
+				//	If the preview mode is enabled, return the analyzed sentence without
+				//	indexing it into to the database
 				if (params.containsKey("preview")&&"true".equalsIgnoreCase(params.get("preview")[0]))
 				{
 					writer.write(resultSentence.toJson(false));
 				}
+				//	If preview mode is not enabled, proceed with indexing of the analyzed
+				//	sentence
 				else
 				{
 				Client client = ClientBuilder.client();
@@ -70,6 +75,9 @@ public class AddCallback extends WriteCallback{
 				writer.write("Error has occured while parsing sentence:\n" + e.message);
 			}
 		}
+		//	In case of a request that is neither POST nor GET request, the the callback 
+		//	will ignore the request altogether,	and state that the request should be a
+		//	GET or a POST request.
 		else
 		{
 			writer.write("only POST and GET requests are allowed");

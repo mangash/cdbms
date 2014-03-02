@@ -16,6 +16,7 @@ public class SentenceProperties extends Properties{
 		setProperty("doc_position", Integer.toString(HebFNProperties.DEFAULT_SENTENCE_DOC_POSITION));
 		setProperty("genre", HebFNProperties.DEFAULT_SENTENCE_GENRE);
 		setProperty("dep_parser_url", HebFNProperties.DEP_PARSER_URL);
+		setProperty("dep_parse_method", HebFNProperties.DEP_PARSE_METHOD);
 		setProperty("dep_parse_source", HebFNProperties.DEP_PARSE_SOURCE);
 		setProperty("const_parser_url", HebFNProperties.CONST_PARSER_URL);
 		setProperty("const_parse_method", HebFNProperties.CONST_PARSE_METHOD);

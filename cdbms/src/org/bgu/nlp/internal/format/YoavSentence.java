@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
@@ -38,6 +39,7 @@ public class YoavSentence {
 
 	//	Dependency-related state
 	private String dep_parser_url;
+	private String dep_parse_method;
 	private String dep_parse_source;
 	private String tokenized_text;
 	private int length=-1;
@@ -72,7 +74,7 @@ public class YoavSentence {
 	//		"dep_parser_url" 	- the url for dependency parser
 	//		"dep_parse_source"	- description of the source for dependency parsing
 	//							  (i.e. "yoavDepParser","yaelDepParser" etc).
-	//		"const_parse_method"- how was the constituency parsing was done
+	//		"const_parse_method"- how was the constituency parsing done
 	//							  ("auto" for parsing via the constituency parser
 	//							   pointed by "const_parse_url", and
 	//							   "manual" for manually entering the content of
@@ -85,6 +87,12 @@ public class YoavSentence {
 	//		"const_parse_format"- what format is returned from constituency parser
 	//							  (i.e. "treebank", "conll" etc)
 	//		"general"			- Any extra information regarding the sentence
+	
+	//		"dep_parse_method"- how was the dependency parsing done
+	//							  ("auto" for parsing via the constituency parser
+	//							   pointed by "const_parse_url", and
+	//							   "manual" for manually entering the content of
+	//							   dependency parsing).
 
 	public YoavSentence(SentenceProperties props) throws SentenceAnalyzerException
 	{
@@ -92,11 +100,16 @@ public class YoavSentence {
 		this.doc_name=props.getProperty("doc_name");
 		this.doc_position=Integer.parseInt(props.getProperty("doc_position"));
 		this.text=props.getProperty("text");
+		this.pattern=props.getProperty("pattern");
 		//System.out.println("text : " + this.text);
 		this.genre=props.getProperty("genre");
 		//System.out.println("genre : " + this.genre);
 		this.dep_parser_url=props.getProperty("dep_parser_url");
 		//System.out.println("dep_parser_url : " + this.dep_parser_url);
+
+		this.dep_parse_method=props.getProperty("dep_parse_method");
+		//System.out.println("dep_parse_method : " + this.dep_parse_method);
+		
 		this.dep_parse_source=props.getProperty("dep_parse_source");
 		//System.out.println("dep_parse_source : " + this.dep_parse_source);
 		this.const_parser_url=props.getProperty("const_parser_url");
@@ -111,44 +124,79 @@ public class YoavSentence {
 		//System.out.println("const_parse_format : " + this.const_parse_contents);
 		this.general=props.getProperty("general");
 		//System.out.println("general : " + this.general);
-
-		//	2.	Analyze the sentence using Yoav's Dependency Parser
-		//		(see the private method analyze() for more details)
-		InputStream depInputStream;
-		try {
-			depInputStream= analyze(this.text, this.dep_parser_url);
-		}
-		catch (SentenceAnalyzerException e)
-		{
-			e.critical=true;
-			throw e;
-		}
-		//	3.	Initialize a Buffered reader using the stream that was returned from
-		//		dependency analyzer
-		InputStreamReader depInputStreamReader=new InputStreamReader(depInputStream,Charset.forName("UTF-8"));
-		BufferedReader depResponseBuffer = new BufferedReader(depInputStreamReader);
-
-		// 	4.	Initialize the yoavWords Vector by reading words from response,
-		//		line by line (each line contains the properties of one yoavWord)
+		
+		//	2. Perform Dependency parsing on the sentence
 		String line = "";
 		StringBuilder sb=new StringBuilder();
 		int i=0;
-		this.yoavWords = new Vector<YoavWord>();
-		try{
-			while ((line = depResponseBuffer.readLine()) != null) {
-				if (!line.trim().isEmpty())
-				{
-					YoavWord yoavWord = new YoavWord(i, line);
-					this.yoavWords.add(yoavWord);
-					sb.append(yoavWord.getWord());
-					sb.append(" ");
-					i++;
-				}
-			}
-		} catch (IOException e)
+		if (!("manual".equals(this.dep_parse_method)))
 		{
-			throw new SentenceAnalyzerException("Problem reading response from parser at: " + this.dep_parser_url, true);
+		
+			//	3.	Analyze the sentence using Yoav's Dependency Parser
+			//		(see the private method analyze() for more details)
+			InputStream depInputStream;
+			try {
+				  
+				depInputStream= analyze(this.text, this.dep_parser_url);
+	
+			}
+			catch (SentenceAnalyzerException e)
+			{
+				e.critical=true;
+				throw e;
+			}
+			//	4.	Initialize a Buffered reader using the stream that was returned from
+			//		dependency analyzer
+			InputStreamReader depInputStreamReader=new InputStreamReader(depInputStream,Charset.forName("UTF-8"));
+			BufferedReader depResponseBuffer = new BufferedReader(depInputStreamReader);
+	
+			// 	5.	Initialize the yoavWords Vector by reading words from response,
+			//		line by line (each line contains the properties of one yoavWord)
+			this.yoavWords = new Vector<YoavWord>();
+			try{
+				while ((line = depResponseBuffer.readLine()) != null) {
+					if (!line.trim().isEmpty())
+					{
+						YoavWord yoavWord = new YoavWord(i, line);
+						this.yoavWords.add(yoavWord);
+						sb.append(yoavWord.getWord());
+						sb.append(" ");
+						i++;
+					}
+				}
+			} catch (IOException e)
+			{
+				throw new SentenceAnalyzerException("Problem reading response from parser at: " + this.dep_parser_url, true);
+			}
 		}
+		else if ("manual".equals(this.dep_parse_method))
+		{
+			StringBuilder rawTextSb=new StringBuilder();
+			BufferedReader reader = new BufferedReader(new StringReader(this.pattern));
+			this.yoavWords = new Vector<YoavWord>();
+			try{
+				while ((line = reader.readLine()) != null) {
+					if (!line.trim().isEmpty())
+					{
+						YoavWord yoavWord = new YoavWord(i, line);
+						this.yoavWords.add(yoavWord);
+						sb.append(yoavWord.getWord());
+						sb.append(" ");
+						if ((yoavWord.getId() % 1 == 0)&&(i!=0))
+						{
+							rawTextSb.append(" ");
+						}
+						rawTextSb.append(yoavWord.getWord());
+						i++;
+					}
+				}
+				this.text=rawTextSb.toString().trim();
+			} catch (IOException e)
+			{
+				throw new SentenceAnalyzerException("Problem reading CONLL pattern", true);
+			}
+		}
+		
 		this.tokenized_text=sb.toString().trim();
 		this.length=i;
 		adjustWordsParentsInfo();
@@ -317,7 +365,7 @@ public class YoavSentence {
 			if (i!=this.yoavWords.size()-1)
 				sb.append(Constants.SENTENCE_PATTERN_DELIMITER);
 		}
-		pattern = new String(sb.toString());
+		this.pattern = new String(sb.toString());
 	}
 
 	//Getter for a parent word of some word in the sentence

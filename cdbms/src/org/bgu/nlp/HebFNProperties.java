@@ -19,6 +19,7 @@ public class HebFNProperties {
 	public static long JETTY_TIMEOUT=30000;
 	public static int ELASTIC_SEARCH_PORT=9200;
 	public static String DEP_PARSER_URL="www.cs.bgu.ac.il/~nlpproj/depparseV2/parse";
+	public static String DEP_PARSE_METHOD="auto";
 	public static String DEP_PARSE_SOURCE="yoavDepParserV2";
 	
 	public static String CONST_PARSER_URL="http://www.cs.bgu.ac.il/~yoavg/constparse/parse";
@@ -80,6 +81,9 @@ public class HebFNProperties {
     					break;
     				case "DEP_PARSER_URL":
     					DEP_PARSER_URL=value;
+    					break;
+    				case "DEP_PARSE_METHOD":
+    					DEP_PARSE_METHOD=value;
     					break;
     				case "DEP_PARSE_SOURCE":
     					DEP_PARSE_SOURCE=value;
